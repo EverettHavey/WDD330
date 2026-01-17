@@ -1,3 +1,5 @@
+import { renderListWithTemplate } from "./utils.mjs";
+
 function productCardTemplate(product) {
   return `<li class="product-card">
     <a href="product_pages/index.html?product=${product.Id}">
@@ -18,11 +20,20 @@ export default class ProductList {
 
   async init() {
     const list = await this.dataSource.getData();
-    this.renderList(list);
+    
+    if (!list) return;
+
+    const filteredList = list.filter(item => 
+      item.Id === "880RR" || 
+      item.Id === "985RF" || 
+      item.Id === "985PR" || 
+      item.Id === "344YJ" 
+    );
+
+    this.renderList(filteredList);
   }
 
   renderList(list) {
     renderListWithTemplate(productCardTemplate, this.listElement, list);
   }
 }
-
