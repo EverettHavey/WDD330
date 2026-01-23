@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Countdown Timer</title>
+    <style>
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 4rem;
+            color: #333;
+            margin: 10px 0;
+        }
+        input {
+            padding: 10px;
+            width: 60px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: opacity 0.2s;
+            margin: 5px;
+        }
+        #startButton { background-color: #28a745; color: white; }
+        #pauseButton { background-color: #ffc107; color: black; }
+        #resetButton { background-color: #dc3545; color: white; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <label for="timeInput">Set Seconds: </label>
+    <input type="number" id="timeInput" value="10" min="1">
+    
+    <h1 id="countdown">10</h1>
+
+    <div class="controls">
+        <button id="startButton">Start</button>
+        <button id="pauseButton" disabled>Pause</button>
+        <button id="resetButton">Reset</button>
+    </div>
+</div>
+
+<script>
+
+    const countdownDisplay = document.getElementById('countdown');
+    const startButton = document.getElementById('startButton');
+    const pauseButton = document.getElementById('pauseButton');
+    const resetButton = document.getElementById('resetButton');
+    const timeInput = document.getElementById('timeInput');
+
+    let timeLeft;
+    let timerInterval = null;
+    let isPaused = false;
+
+    startButton.addEventListener('click', () => {
+
+        if (!isPaused) {
+            timeLeft = parseInt(timeInput.value);
+            countdownDisplay.textContent = timeLeft;
+        }
+        
+        isPaused = false;
+        startButton.disabled = true;
+        pauseButton.disabled = false;
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            
+            if (timeLeft >= 0) {
+                countdownDisplay.textContent = timeLeft;
+            } 
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                countdownDisplay.textContent = "Time's up!";
+                startButton.disabled = false;
+                pauseButton.disabled = true;
+            }
+        }, 1000);
+    });
+
+    // Bonus: Pause/Resume Logic
+    pauseButton.addEventListener('click', () => {
+        clearInterval(timerInterval);
+        isPaused = true;
+        startButton.disabled = false;
+        pauseButton.disabled = true;
+        startButton.textContent = "Resume";
+    });
+
+    resetButton.addEventListener('click', () => {
+        clearInterval(timerInterval);
+        isPaused = false;
+        timeLeft = timeInput.value;
+        countdownDisplay.textContent = timeLeft;
+        startButton.textContent = "Start";
+        startButton.disabled = false;
+        pauseButton.disabled = true;
+    });
+</script>
+
+</body>
+</html>
