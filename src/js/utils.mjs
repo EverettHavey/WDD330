@@ -29,6 +29,12 @@ export function getParam(param) {
   return product
 }
 
+export async function loadHeaderFooter() {
+  const header = await fetch("./partials/header.html");
+  const headerText = await header.text();
+  document.querySelector("header").innerHTML = headerText;
+}
+
 export function renderListWithTemplate(template, parentElement, list, position = "afterbegin", clear = false) {
   const htmlStrings = list.map(template);
   if (clear) {
