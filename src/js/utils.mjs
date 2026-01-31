@@ -1,18 +1,15 @@
 export function qs(selector, parent = document) {
   return parent.querySelector(selector);
 }
-// or a more concise version if you are into that sort of thing:
-// export const qs = (selector, parent = document) => parent.querySelector(selector);
 
-// retrieve data from localstorage
 export function getLocalStorage(key) {
   return JSON.parse(localStorage.getItem(key));
 }
-// save data to local storage
+
 export function setLocalStorage(key, data) {
   localStorage.setItem(key, JSON.stringify(data));
 }
-// set a listener for both touchend and click
+
 export function setClick(selector, callback) {
   qs(selector).addEventListener("touchend", (event) => {
     event.preventDefault();
@@ -21,18 +18,11 @@ export function setClick(selector, callback) {
   qs(selector).addEventListener("click", callback);
 }
 
-// get the product id from the query string
 export function getParam(param) {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const product = urlParams.get(param);
-  return product
-}
-
-export async function loadHeaderFooter() {
-  const header = await fetch("./partials/header.html");
-  const headerText = await header.text();
-  document.querySelector("header").innerHTML = headerText;
+  return product;
 }
 
 export function renderListWithTemplate(template, parentElement, list, position = "afterbegin", clear = false) {
@@ -41,6 +31,26 @@ export function renderListWithTemplate(template, parentElement, list, position =
     parentElement.innerHTML = "";
   }
   parentElement.insertAdjacentHTML(position, htmlStrings.join(""));
+}
+
+export async function loadHeaderFooter() {
+  const headerTemplate = await fetch("/partials/header.html");
+  const footerTemplate = await fetch("/partials/footer.html");
+  
+  const headerHtml = await headerTemplate.text();
+  const footerHtml = await footerTemplate.text();
+
+  const headerElement = document.querySelector("#main-header");
+  const footerElement = document.querySelector("#main-footer");
+
+  if (headerElement) {
+    headerElement.innerHTML = ""; // Clear existing content
+    headerElement.insertAdjacentHTML("afterbegin", headerHtml);
+  }
+  if (footerElement) {
+    footerElement.innerHTML = ""; // Clear existing content
+    footerElement.insertAdjacentHTML("afterbegin", footerHtml);
+  }
 }
 
 export function alertMessage(message, scroll = true) {
@@ -53,7 +63,9 @@ export function alertMessage(message, scroll = true) {
   });
 
   const main = document.querySelector("main");
-  main.prepend(alert);
+  if (main) {
+    main.prepend(alert);
+  }
 
   if (scroll) window.scrollTo(0, 0);
 }

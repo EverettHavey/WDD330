@@ -1,7 +1,6 @@
-import { getLocalStorage, setLocalStorage } from "./utils.mjs";
+import { getLocalStorage, setLocalStorage, alertMessage } from "./utils.mjs";
 
 export default class ProductDetails {
-
   constructor(productId, dataSource) {
     this.productId = productId;
     this.product = {};
@@ -9,46 +8,46 @@ export default class ProductDetails {
   }
 
   async init() {
-    // use the datasource to get the details for the current product. findProductById will return a promise! use await or .then() to process it
+
     this.product = await this.dataSource.findProductById(this.productId);
-    // the product details are needed before rendering the HTML
-    this.renderProductDetails();
-    // once the HTML is rendered, add a listener to the Add to Cart button
-    // Notice the .bind(this). This callback will not work if the bind(this) is missing. Review the readings from this week on "this" to understand why.
-    document
-      .getElementById("addToCart")
-      .addEventListener("click", this.addProductToCart.bind(this));
+
+    if (this.product) {
+      this.renderProductDetails();
+
+      document
+        .getElementById("addToCart")
+        .addEventListener("click", this.addProductToCart.bind(this));
+    }
   }
 
   addProductToCart() {
-    const cartItems = getLocalStorage("so-cart") || [];
+
+    let cartItems = getLocalStorage("so-cart") || [];
+
+    if (!Array.isArray(cartItems)) {
+      cartItems = [cartItems];
+    }
+
     cartItems.push(this.product);
+
     setLocalStorage("so-cart", cartItems);
+
+    alertMessage(`${this.product.NameWithoutBrand} added to cart!`);
   }
 
   renderProductDetails() {
-    productDetailsTemplate(this.product);
+
+    document.getElementById("productBrandName").textContent = this.product.Brand.Name;
+    document.getElementById("productNameWithoutBrand").textContent = this.product.NameWithoutBrand;
+
+    const productImage = document.getElementById("productImage");
+    productImage.src = this.product.Images.PrimaryLarge;
+    productImage.alt = this.product.Name;
+
+    document.getElementById("productPrice").textContent = `$${this.product.FinalPrice}`;
+    document.getElementById("productColor").textContent = `Color: ${this.product.Colors[0].ColorName}`;
+    document.getElementById("productDesc").innerHTML = this.product.DescriptionHtmlSimple;
+
+    document.getElementById("addToCart").dataset.id = this.product.Id;
   }
-}
-
-function productDetailsTemplate(product) {
-  // safety check: if product is empty, don't do anything
-  if (!product || !product.Brand) { 
-    return ""; 
-  }
-
-  document.querySelector("h2").textContent = product.Brand.Name;
-  document.querySelector("h3").textContent = product.NameWithoutBrand;
-
-  const productImage = document.getElementById("productImage");
-  
-  // FIX: Make sure images load by fixing the path
-  productImage.src = product.Image.replace("../", "/"); 
-  productImage.alt = product.NameWithoutBrand;
-
-  document.getElementById("productPrice").textContent = product.FinalPrice;
-  document.getElementById("productColor").textContent = product.Colors[0].ColorName;
-  document.getElementById("productDesc").innerHTML = product.DescriptionHtmlSimple;
-
-  document.getElementById("addToCart").dataset.id = product.Id;
 }
